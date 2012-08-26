@@ -13,6 +13,32 @@ another way. This is the way of IO also."
 
 ***
 
+Streams come to us from the earliest days of unix and have proven themselves
+over the decades as a dependable way to compose large systems out of small
+components that
+[do one thing well](http://www.faqs.org/docs/artu/ch01s06.html#id2873237).
+In unix, streams are implemented by the shell with `|` pipes.
+In node, the built-in
+[stream module](http://nodejs.org/docs/latest/api/stream.html)
+is used by the core libraries and easily be used by user-land code.
+Similar to unix, the node stream module's primary composition operator is called
+`.pipe()`.
+
+Streams can be useful because they restrict the implementation surface area into
+a single consistent interface.
+You can then easily plug the output of one stream to the input of another and
+[use libraries](http://npmjs.org) that operate abstractly on streams to
+institute higher-level flow control.
+
+Streams are an important component of
+[small-program design](https://michaelochurch.wordpress.com/2012/08/15/what-is-spaghetti-code/)
+and [unix philosophy](http://www.faqs.org/docs/artu/ch01s06.html)
+but there are many other important abstractions worth considering.
+Just remember that [technical debt](http://c2.com/cgi/wiki?TechnicalDebt)
+is the enemy and seek the best abstractions for the problem at hand.
+
+***
+
 # basics
 
 ## readable
@@ -26,6 +52,8 @@ another way. This is the way of IO also."
 ***
 
 # builtin streams
+
+## child_process.spawn()
 
 ## fs.createReadStream()
 

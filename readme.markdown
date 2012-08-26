@@ -17,6 +17,8 @@ another way. This is the way of IO also."
 
 ## readable
 
+### pause / resume / drain
+
 ## writable
 
 ## pipe
@@ -24,6 +26,8 @@ another way. This is the way of IO also."
 ## backpressure
 
 ## destroy
+
+## stream-spec
 
 ***
 

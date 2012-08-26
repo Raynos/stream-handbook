@@ -16,17 +16,20 @@ another way. This is the way of IO also."
 Streams come to us from the earliest days of unix and have proven themselves
 over the decades as a dependable way to compose large systems out of small
 components that
-[do one thing well](http://www.faqs.org/docs/artu/ch01s06.html#id2873237).
+[do one thing well](http://www.faqs.org/docs/artu/ch01s06.html).
 In unix, streams are implemented by the shell with `|` pipes.
 In node, the built-in
 [stream module](http://nodejs.org/docs/latest/api/stream.html)
-is used by the core libraries and easily be used by user-land code.
+is used by the core libraries and can also be used by user-space modules.
 Similar to unix, the node stream module's primary composition operator is called
 `.pipe()`.
 
-Streams can be useful because they restrict the implementation surface area into
-a single consistent interface.
-You can then easily plug the output of one stream to the input of another and
+Streams can help to
+[separate your concerns](http://www.c2.com/cgi/wiki?SeparationOfConcerns)
+because they restrict the implementation surface area into a consistent
+interface that can be
+[reused](http://www.faqs.org/docs/artu/ch01s06.html#id2877537).
+You can then plug the output of one stream to the input of another and
 [use libraries](http://npmjs.org) that operate abstractly on streams to
 institute higher-level flow control.
 

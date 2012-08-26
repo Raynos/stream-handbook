@@ -89,7 +89,7 @@ combinations such as `^C` and `^D` will be removed.
 
 ## [net.connect()](http://nodejs.org/docs/latest/api/net.html#net_net_connect_options_connectionlistener)
 
-This function returns a [through stream] that connects over tcp to a remote
+This function returns a [duplex stream] that connects over tcp to a remote
 host.
 
 You can start writing to the stream right away and the writes will be buffered

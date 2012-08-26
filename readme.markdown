@@ -41,6 +41,8 @@ is the enemy and seek the best abstractions for the problem at hand.
 
 # basics
 
+http://maxogden.com/node-streams
+
 ## readable
 
 ## writable
@@ -53,13 +55,39 @@ is the enemy and seek the best abstractions for the problem at hand.
 
 # builtin streams
 
+These streams are built into node itself.
+
+## [process.stdin](http://nodejs.org/docs/latest/api/process.html#process_process_stdin)
+
+This readable stream contains the standard system input stream for your program.
+
+It is paused by default but the first time you refer to it `.resume()` will be
+called implicitly on the
+[next tick](http://nodejs.org/docs/latest/api/process.html#process_process_nexttick_callback).
+
+If process.stdin is a tty (check with
+[`tty.isatty()`](http://nodejs.org/docs/latest/api/tty.html#tty_tty_isatty_fd))
+then input events will be line-buffered. You can turn off line-buffering by
+calling `process.stdin.setRawMode(true)` BUT the default handlers for key
+combinations such as `^C` and `^D` will be removed.
+
+## process.stdout
+
+## process.stderr
+
 ## child_process.spawn()
 
 ## fs.createReadStream()
 
 ## fs.createWriteStream()
 
-## net.connect()
+## [net.connect()](http://nodejs.org/docs/latest/api/net.html#net_net_connect_options_connectionlistener)
+
+This function returns a [through stream] that connects over tcp to a remote
+host.
+
+You can start writing to the stream right away and the writes will be buffered
+until the `'connect'` event fires.
 
 ## net.createServer()
 
@@ -115,11 +143,15 @@ is the enemy and seek the best abstractions for the problem at hand.
 
 ## trumpet
 
-## JSONStream
+## [JSONStream](https://github.com/dominictarr/JSONStream)
+
+Use this module to parse and stringify json data from streams.
+
+If you need to pass a large json collection through a slow connection or you
+have a json object that will populate slowly this module will let you parse data
+incrementally as it arrives.
 
 ## json-scrape
-
-## trumpet
 
 ***
 

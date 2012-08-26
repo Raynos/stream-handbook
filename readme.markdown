@@ -45,11 +45,17 @@ http://maxogden.com/node-streams
 
 ## readable
 
+### pause / resume / drain
+
 ## writable
 
 ## pipe
 
 ## backpressure
+
+## destroy
+
+## stream-spec
 
 ***
 
@@ -101,13 +107,15 @@ until the `'connect'` event fires.
 
 ## through
 
+## from
+
 ## pause-stream
 
 ## concat-stream
 
 ## duplex
 
-## mux-demux
+## duplexer
 
 ## emit-stream
 
@@ -116,6 +124,22 @@ until the `'connect'` event fires.
 ## map-stream
 
 ## remote-events
+
+## buffer-stream
+
+## event-stream
+
+## auth-stream
+
+***
+
+# meta streams
+
+## mux-demux
+
+## stream-router
+
+## multi-channel-mdm
 
 ***
 
@@ -135,6 +159,8 @@ until the `'connect'` event fires.
 
 ## kv
 
+## discovery-network
+
 ***
 
 # parser streams
@@ -153,6 +179,8 @@ incrementally as it arrives.
 
 ## json-scrape
 
+## stream-serializer
+
 ***
 
 # browser streams
@@ -167,6 +195,10 @@ incrementally as it arrives.
 
 ## arrow-keys
 
+## attribute
+
+## data-bind
+
 ***
 
 # rpc streams
@@ -180,3 +212,5 @@ incrementally as it arrives.
 # test streams
 
 ## tap
+
+## stream-spec

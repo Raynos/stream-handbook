@@ -115,12 +115,32 @@ var server = http.createServer(function (req, res) {
 server.listen(8000);
 ```
 
-With the [filed module](http://github.com/mikeal/filed) we get mime types and
-error handling for free in addition to a nice streaming API.
+With the [filed module](http://github.com/mikeal/filed) we get mime types, etag
+caching, and error handling for free in addition to a nice streaming API.
 
-Once you learn the stream api, you'll be able to use
-all the [modules on npm](https://npmjs.org/) that implement streaming APIs
-without having to remember how to get data in and out of wonky custom APIs.
+Want compression? There are streaming modules for that too!
+
+``` js
+var http = require('http');
+var filed = require('filed');
+var oppressor = require('oppressor');
+
+var server = http.createServer(function (req, res) {
+    filed(__dirname + '/data.txt')
+        .pipe(oppressor(req))
+        .pipe(res)
+    ;
+});
+server.listen(8000);
+```
+
+Pow, now our file is compressed for browsers that support gzip or deflate! We
+just let [oppressor](https://github.com/substack/oppressor) handle all that
+content-encoding stuff.
+
+Once you learn the stream api, you can just snap together these streaming
+modules like lego bricks or garden hoses instead of having to remember how to push
+data through wonky non-streaming custom APIs.
 
 Streams make programming in node simple, elegant, and composable.
 
@@ -285,6 +305,8 @@ until the `'connect'` event fires.
 ## request
 
 ## filed
+
+## oppressor
 
 ## reconnect
 

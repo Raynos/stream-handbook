@@ -43,9 +43,87 @@ is the enemy and to seek the best abstractions for the problem at hand.
 
 ***
 
+# why you should use streams
+
+I/O in node is asynchronous, so interacting with the disk and network involves
+passing callbacks to functions. You might be tempted to write code that serves
+up a file from disk like this:
+
+``` js
+var http = require('http');
+var fs = require('fs');
+
+var server = http.createServer(function (req, res) {
+    fs.readFile(__dirname + '/data.txt', function (err, data) {
+        if (err) {
+            res.statusCode = 500;
+            res.end(String(err));
+        }
+        else res.end(data);
+    });
+});
+server.listen(8000);
+```
+
+This code works but it's bulky and buffers up the entire `data.txt` file into
+memory for every request before writing the result back to clients. If
+`data.txt` is very large, your program could start eating a lot of memory as it
+serves lots of users concurrently. The latency will also be high as users will
+need to wait for the entire file to be read before they start receiving the
+contents.
+
+Luckily both of the `(req, res)` arguments are streams, which means we can write
+this in a much better way using `fs.createReadStream()` instead of
+`fs.readFile()`:
+
+``` js
+var http = require('http');
+var fs = require('fs');
+
+var server = http.createServer(function (req, res) {
+    var stream = fs.createReadStream(__dirname + '/data.txt');
+    stream.on('error', function (err) {
+        res.statusCode = 500;
+        res.end(String(err));
+    });
+    stream.pipe(res);
+});
+server.listen(8000);
+```
+
+Here `.pipe()` takes care of listening for `'data'` and `'end'` events from the
+`fs.createReadStream()`. This code is not only cleaner, but now the `data.txt`
+file will be written to clients one chunk at a time immediately as they are
+received from the disk.
+
+Using `.pipe()` has other benefits too, like handling backpressure automatically
+so that node won't buffer chunks into memory needlessly when the remote client
+is on a really slow or high-latency connection.
+
+But this example, while much better than the first one, is still rather verbose.
+The biggest benefit of streams is their versatility. We can
+[use a module](https://npmjs.org/) that operates on streams to make that example
+even simpler:
+
+``` js
+var http = require('http');
+var filed = require('filed');
+
+var server = http.createServer(function (req, res) {
+    filed(__dirname + '/data.txt').pipe(res);
+});
+server.listen(8000);
+```
+
+With this module we get mime types and error handling for free!
+
+Once you learn the stream api, you'll be able to use
+all the [modules on npm](https://npmjs.org/) that implement streaming APIs
+without having to remember how to get data in and out of wonky custom APIs.
+
+Streams make programming in node simple, elegant, and composable.
+
 # basics
-
-
 
 ## readable
 
@@ -164,6 +242,8 @@ until the `'connect'` event fires.
 # io streams
 
 ## request
+
+## filed
 
 ## reconnect
 

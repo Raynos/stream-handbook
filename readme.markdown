@@ -45,7 +45,7 @@ is the enemy and to seek the best abstractions for the problem at hand.
 
 # basics
 
-http://maxogden.com/node-streams
+
 
 ## readable
 
@@ -60,6 +60,12 @@ http://maxogden.com/node-streams
 ## destroy
 
 ## stream-spec
+
+## read more
+
+* [core stream * documentation](http://nodejs.org/docs/latest/api/stream.html#stream_stream)
+* [notes on the stream api](http://maxogden.com/node-streams)
+* [why streams are awesome](http://blog.dump.ly/post/19819897856/why-node-js-streams-are-awesome)
 
 ***
 

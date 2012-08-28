@@ -5,7 +5,7 @@ programs with [streams](http://nodejs.org/docs/latest/api/stream.html).
 
 ```
 "We should have some ways of connecting programs like garden hose--screw in
-another segment when it becomes when it becomes necessary to massage data in
+another segment when it becomes necessary to massage data in
 another way. This is the way of IO also."
 ```
 
@@ -115,7 +115,8 @@ var server = http.createServer(function (req, res) {
 server.listen(8000);
 ```
 
-With this module we get mime types and error handling for free!
+With the [filed module](http://github.com/mikeal/filed) we get mime types and
+error handling for free in addition to a nice streaming API.
 
 Once you learn the stream api, you'll be able to use
 all the [modules on npm](https://npmjs.org/) that implement streaming APIs
@@ -125,13 +126,43 @@ Streams make programming in node simple, elegant, and composable.
 
 # basics
 
+Streams are just
+[EventEmitters](http://nodejs.org/docs/latest/api/events.html#events_class_events_eventemitter)
+that have a
+[.pipe()](http://nodejs.org/docs/latest/api/stream.html#stream_stream_pipe_destination_options)
+function and expected to act in a certain way depending if the stream is
+readable, writable, or both (duplex).
+
+To create a new stream, just do:
+
+``` js
+var Stream = require('stream');
+var s = new Stream;
+```
+
+This new stream doesn't yet do anything because it is neither readable nor
+writable.
+
 ## readable
 
-### pause / resume / drain
+To make that stream `s` into a readable stream, all we need to do is set the
+`readable` property to true:
+
+``` js
+s.readable = true
+```
+
+Readable streams emit `'data'` and `'end'` events.
 
 ## writable
 
+## duplex
+
+Duplex streams are just streams that are both readable and writable.
+
 ## pipe
+
+### pause / resume / drain
 
 ## backpressure
 
@@ -141,9 +172,15 @@ Streams make programming in node simple, elegant, and composable.
 
 ## read more
 
-* [core stream * documentation](http://nodejs.org/docs/latest/api/stream.html#stream_stream)
+* [core stream documentation](http://nodejs.org/docs/latest/api/stream.html#stream_stream)
 * [notes on the stream api](http://maxogden.com/node-streams)
 * [why streams are awesome](http://blog.dump.ly/post/19819897856/why-node-js-streams-are-awesome)
+
+## the future
+
+A big upgrade is planned for the stream api in node 0.9. Expect the style
+documented here to continue to work well into the future, but be on the lookout
+for the new slicker stream api when it finalizes.
 
 ***
 
@@ -188,6 +225,10 @@ until the `'connect'` event fires.
 ## http.request()
 
 ## http.createServer()
+
+## zlib.createGzip()
+
+## zlib.createGunzip()
 
 ***
 

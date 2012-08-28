@@ -22,7 +22,8 @@ In node, the built-in
 [stream module](http://nodejs.org/docs/latest/api/stream.html)
 is used by the core libraries and can also be used by user-space modules.
 Similar to unix, the node stream module's primary composition operator is called
-`.pipe()`.
+`.pipe()` and you get a backpressure mechanism for free to throttle writes for
+slow consumers.
 
 Streams can help to
 [separate your concerns](http://www.c2.com/cgi/wiki?SeparationOfConcerns)
@@ -38,7 +39,7 @@ Streams are an important component of
 and [unix philosophy](http://www.faqs.org/docs/artu/ch01s06.html)
 but there are many other important abstractions worth considering.
 Just remember that [technical debt](http://c2.com/cgi/wiki?TechnicalDebt)
-is the enemy and seek the best abstractions for the problem at hand.
+is the enemy and to seek the best abstractions for the problem at hand.
 
 ***
 

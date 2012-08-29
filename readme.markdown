@@ -211,13 +211,29 @@ substack : ~ $ node rs.js
 substack : ~ $ 
 ```
 
+In this example the `'data'` events have a string payload as the first argument.
+Buffers and strings are the most common types of data to stream but it's
+sometimes useful to emit other types of objects.
+
+Just make sure that the types you're emitting as data is compatible with the
+types that the writable stream you're piping into expects.
+Otherwise you can pipe into an intermediary conversion or parsing stream before
+piping to your intended destination.
+
 ## writable
+
+Writable streams
 
 ## duplex
 
 Duplex streams are just streams that are both readable and writable.
 
 ## pipe
+
+`.pipe()` is the only member function of the built-in `Stream` prototype.
+
+`.pipe(target)` returns the destination stream, `target`.
+This means you can chain `.pipe()` calls together like in the shell with `|`.
 
 ### pause / resume / drain
 
@@ -246,7 +262,7 @@ these future streams will look like.
 
 ***
 
-# builtin streams
+# built-in streams
 
 These streams are built into node itself.
 

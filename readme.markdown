@@ -211,7 +211,6 @@ substack : ~ $ node rs.js
 substack : ~ $ 
 ```
 
-
 ## writable
 
 ## duplex
@@ -236,9 +235,14 @@ Duplex streams are just streams that are both readable and writable.
 
 ## the future
 
-A big upgrade is planned for the stream api in node 0.9. Expect the style
-documented here to continue to work well into the future, but be on the lookout
-for the new slicker stream api when it finalizes.
+A big upgrade is planned for the stream api in node 0.9.
+The basic apis with `.pipe()` will be the same, only the internals are going to
+be different. The new api will also be backwards compatible with the existing
+api documented here for a long time.
+
+You can check the
+[readable-stream](https://github.com/isaacs/readable-stream) repo to see what
+these future streams will look like.
 
 ***
 

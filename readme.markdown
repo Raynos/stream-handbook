@@ -134,7 +134,7 @@ var server = http.createServer(function (req, res) {
 server.listen(8000);
 ```
 
-Pow, now our file is compressed for browsers that support gzip or deflate! We
+Now our file is compressed for browsers that support gzip or deflate! We can
 just let [oppressor](https://github.com/substack/oppressor) handle all that
 content-encoding stuff.
 
@@ -172,7 +172,45 @@ To make that stream `s` into a readable stream, all we need to do is set the
 s.readable = true
 ```
 
-Readable streams emit `'data'` and `'end'` events.
+Readable streams emit many `'data'` events and a single `'end'` event.
+Your stream shouldn't emit any more `'data'` events after it emits the `'end'`
+event.
+
+This simple readable stream emits one `'data'` event per second for 5 seconds,
+then it ends. The data is piped to stdout so we can watch the results as they
+
+``` js
+var Stream = require('stream');
+
+function createStream () {
+    var s = new Stream;
+    s.readable = true
+
+    var times = 0;
+    var iv = setInterval(function () {
+        s.emit('data', times + '\n');
+        if (++times === 5) {
+            s.emit('end');
+            clearInterval(iv);
+        }
+    }, 1000);
+    
+    return s;
+}
+
+createStream().pipe(process.stdout);
+```
+
+```
+substack : ~ $ node rs.js
+0
+1
+2
+3
+4
+substack : ~ $ 
+```
+
 
 ## writable
 

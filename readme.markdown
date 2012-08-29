@@ -338,13 +338,19 @@ until the `'connect'` event fires.
 
 ***
 
-# io streams
+# http streams
 
 ## request
 
 ## filed
 
 ## oppressor
+
+## response-stream
+
+***
+
+# io streams
 
 ## reconnect
 

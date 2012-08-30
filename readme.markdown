@@ -266,7 +266,9 @@ these future streams will look like.
 
 These streams are built into node itself.
 
-## [process.stdin](http://nodejs.org/docs/latest/api/process.html#process_process_stdin)
+## process
+
+### [process.stdin](http://nodejs.org/docs/latest/api/process.html#process_process_stdin)
 
 This readable stream contains the standard system input stream for your program.
 
@@ -280,17 +282,21 @@ then input events will be line-buffered. You can turn off line-buffering by
 calling `process.stdin.setRawMode(true)` BUT the default handlers for key
 combinations such as `^C` and `^D` will be removed.
 
-## process.stdout
+### process.stdout
 
-## process.stderr
+### process.stderr
 
 ## child_process.spawn()
 
-## fs.createReadStream()
+## fs
 
-## fs.createWriteStream()
+### fs.createReadStream()
 
-## [net.connect()](http://nodejs.org/docs/latest/api/net.html#net_net_connect_options_connectionlistener)
+### fs.createWriteStream()
+
+## net
+
+### [net.connect()](http://nodejs.org/docs/latest/api/net.html#net_net_connect_options_connectionlistener)
 
 This function returns a [duplex stream] that connects over tcp to a remote
 host.
@@ -298,15 +304,23 @@ host.
 You can start writing to the stream right away and the writes will be buffered
 until the `'connect'` event fires.
 
-## net.createServer()
+### net.createServer()
 
-## http.request()
+## http
 
-## http.createServer()
+### http.request()
 
-## zlib.createGzip()
+### http.createServer()
 
-## zlib.createGunzip()
+## zlib
+
+### zlib.createGzip()
+
+### zlib.createGunzip()
+
+### zlib.createDeflate()
+
+### zlib.createInflate()
 
 ***
 

@@ -432,6 +432,10 @@ incrementally as it arrives.
 
 ***
 
+# audio streams
+
+## [baudio](https://github.com/substack/baudio)
+
 # rpc streams
 
 ## dnode

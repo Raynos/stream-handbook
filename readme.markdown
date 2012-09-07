@@ -449,3 +449,117 @@ incrementally as it arrives.
 ## tap
 
 ## stream-spec
+
+***
+
+# power combos
+
+## roll your own socket.io
+
+We can build a socket.io-style event emitter api over streams using some of the
+libraries mentioned earlier in this document.
+
+First 
+
+``` js
+var EventEmitter = require('events').EventEmitter;
+var shoe = require('shoe');
+var emitStream = require('emit-stream');
+var JSONStream = require('JSONStream');
+
+var sock = shoe(function (stream) {
+    var ev = new EventEmitter;
+    emitStream(ev)
+        .pipe(JSONStream.stringify())
+        .pipe(stream)
+    ;
+    ...
+});
+```
+
+Inside the shoe callback we can emit events to the `ev` function.  Here we'll
+just emit different kinds of events on intervals:
+
+``` js
+var intervals = [];
+
+intervals.push(setInterval(function () {
+    ev.emit('upper', 'abc');
+}, 500));
+
+intervals.push(setInterval(function () {
+    ev.emit('lower', 'def');
+}, 300));
+
+stream.on('end', function () {
+    intervals.forEach(clearInterval);
+});
+```
+
+Finally the shoe instance just needs to be bound to an http server:
+
+``` js
+var http = require('http');
+var server = http.createServer(require('ecstatic')(__dirname));
+server.listen(8080);
+
+sock.install(server, '/sock');
+```
+
+Meanwhile on the browser side of things just parse the json shoe stream and pass
+the resulting object stream to `eventStream()`. `eventStream()` just returns an
+event emitter that emits the server-side events:
+
+``` js
+var shoe = require('shoe');
+var emitStream = require('emit-stream');
+var JSONStream = require('JSONStream');
+
+var parser = JSONStream.parse([true]);
+var stream = parser.pipe(shoe('/sock')).pipe(parser);
+var ev = emitStream(stream);
+
+ev.on('lower', function (msg) {
+    var div = document.createElement('div');
+    div.textContent = msg.toLowerCase();
+    document.body.appendChild(div);
+});
+
+ev.on('upper', function (msg) {
+    var div = document.createElement('div');
+    div.textContent = msg.toUpperCase();
+    document.body.appendChild(div);
+});
+```
+
+Use [browserify](https://github.com/substack/node-browserify) to build this
+browser source code so that you can `require()` all these nifty modules
+browser-side:
+
+```
+$ browserify main.js -o bundle.js
+```
+
+Then drop a `<script src="/bundle.js"></script>` into some html and open it up
+in a browser to see server-side events streamed through to the browser side of
+things.
+
+With this streaming approach you can rely more on tiny reusable components that
+only need to know how to talk streams. Instead of routing messages through a
+global event system socket.io-style, you can focus more on breaking up your
+application into tinier units of functionality that can do exactly one thing
+well.
+
+For instance you can trivially swap out JSONStream in this example for
+stream-serializer to get a different take on serialization with a different set
+of tradeoffs.
+You could bolt layers over top of shoe to handle reconnections or heartbeats
+using simple streaming interfaces.
+
+If you want some different streams that act in different ways it would likewise
+be pretty simple to run the shoe stream in this example through mux-demux to
+create separate channels for each different kind of stream that you need.
+
+As the requirements of your system evolve over time, you can swap out each of
+these streaming pieces as necessary without as many of the all-or-nothing risks
+that more opinionated framework approaches necessarily entail.

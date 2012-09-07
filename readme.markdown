@@ -13,9 +13,10 @@ another way. This is the way of IO also."
 
 ***
 
-Streams come to us from the earliest days of unix and have proven themselves
-over the decades as a dependable way to compose large systems out of small
-components that
+Streams come to us from the
+[earliest days of unix](http://www.youtube.com/watch?v=tc4ROCJYbm0)
+and have proven themselves over the decades as a dependable way to compose large
+systems out of small components that
 [do one thing well](http://www.faqs.org/docs/artu/ch01s06.html).
 In unix, streams are implemented by the shell with `|` pipes.
 In node, the built-in

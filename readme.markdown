@@ -459,7 +459,10 @@ incrementally as it arrives.
 We can build a socket.io-style event emitter api over streams using some of the
 libraries mentioned earlier in this document.
 
-First 
+First  we can use shoe to create a new websocket handler server-side and
+emit-stream to turn an event emitter into a stream that emits objects. The
+object stream can then be fed into JSONStream to serialize the objects and then
+that result can be piped into the remote browser client.
 
 ``` js
 var EventEmitter = require('events').EventEmitter;

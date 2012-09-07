@@ -459,10 +459,14 @@ incrementally as it arrives.
 We can build a socket.io-style event emitter api over streams using some of the
 libraries mentioned earlier in this document.
 
-First  we can use shoe to create a new websocket handler server-side and
-emit-stream to turn an event emitter into a stream that emits objects. The
-object stream can then be fed into JSONStream to serialize the objects and then
-that result can be piped into the remote browser client.
+First  we can use [shoe](http://github.com/substack/shoe)
+to create a new websocket handler server-side and
+[emit-stream](https://github.com/substack/emit-stream)
+to turn an event emitter into a stream that emits objects.
+The object stream can then be fed into
+[JSONStream](https://github.com/dominictarr/JSONStream)
+to serialize the objects and from there the serialized stream can be piped into
+the remote browser.
 
 ``` js
 var EventEmitter = require('events').EventEmitter;
@@ -554,10 +558,14 @@ application into tinier units of functionality that can do exactly one thing
 well.
 
 For instance you can trivially swap out JSONStream in this example for
-stream-serializer to get a different take on serialization with a different set
-of tradeoffs.
-You could bolt layers over top of shoe to handle reconnections or heartbeats
+[stream-serializer](https://github.com/dominictarr/stream-serializer)
+to get a different take on serialization with a different set of tradeoffs.
+You could bolt layers over top of shoe to handle
+[reconnections](https://github.com/dominictarr/reconnect) or heartbeats
 using simple streaming interfaces.
+You could even add a stream into the chain to use namespaced events with
+[eventemitter2](https://npmjs.org/package/eventemitter2) instead of the
+EventEmitter in core.
 
 If you want some different streams that act in different ways it would likewise
 be pretty simple to run the shoe stream in this example through mux-demux to

@@ -11,6 +11,8 @@ another way. This is the way of IO also."
 
 [Doug McIlroy. October 11, 1964](http://cm.bell-labs.com/who/dmr/mdmpipe.html)
 
+![doug mcilroy](http://substack.net/images/mcilroy.png)
+
 ***
 
 Streams come to us from the
@@ -41,6 +43,8 @@ and [unix philosophy](http://www.faqs.org/docs/artu/ch01s06.html)
 but there are many other important abstractions worth considering.
 Just remember that [technical debt](http://c2.com/cgi/wiki?TechnicalDebt)
 is the enemy and to seek the best abstractions for the problem at hand.
+
+![brian kernighan](http://substack.net/images/kernighan.png)
 
 ***
 

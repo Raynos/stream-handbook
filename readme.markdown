@@ -613,7 +613,127 @@ incrementally as it arrives.
 
 ## [dnode](https://github.com/substack/dnode)
 
+[dnode](https://github.com/substack/dnode) lets you call remote functions
+through any kind of stream.
 
+Here's a basic dnode server:
+
+``` js
+var dnode = require('dnode');
+var net = require('net');
+
+var server = net.createServer(function (c) {
+    var d = dnode({
+        transform : function (s, cb) {
+            cb(s.replace(/[aeiou]{2,}/, 'oo').toUpperCase())
+        }
+    });
+    c.pipe(d).pipe(c);
+});
+
+server.listen(5004);
+```
+
+then you can hack up a simple client that calls the server's `.transform()`
+function:
+
+``` js
+var dnode = require('dnode');
+var net = require('net');
+
+var d = dnode();
+d.on('remote', function (remote) {
+    remote.transform('beep', function (s) {
+        console.log('beep => ' + s);
+        d.end();
+    });
+});
+
+var c = net.connect(5004);
+c.pipe(d).pipe(c);
+```
+
+Fire up the server, then when you run the client you should see:
+
+```
+$ node client.js
+beep => BOOP
+```
+
+The client sent `'beep`' to the server's `transform()` function and the server
+called the client's callback with the result, neat!
+
+The craziness begins when you start to pass function arguments to stubbed
+callbacks. Here's an updated version of the previous server with a multi-stage
+callback passing dance:
+
+``` js
+var dnode = require('dnode');
+var net = require('net');
+
+var server = net.createServer(function (c) {
+    var d = dnode({
+        transform : function (s, cb) {
+            cb(function (n, fn) {
+                var oo = Array(n+1).join('o');
+                fn(s.replace(/[aeiou]{2,}/, oo).toUpperCase());
+            });
+        }
+    });
+    c.pipe(d).pipe(c);
+});
+
+server.listen(5004);
+```
+
+Here's the updated client:
+
+``` js
+var dnode = require('dnode');
+var net = require('net');
+
+var d = dnode();
+d.on('remote', function (remote) {
+    remote.transform('beep', function (cb) {
+        cb(10, function (s) {
+            console.log('beep:10 => ' + s);
+            d.end();
+        });
+    });
+});
+
+var c = net.connect(5004);
+c.pipe(d).pipe(c);
+```
+
+After we spin up the server, when we run the client now we get:
+
+```
+$ node client.js
+beep:10 => BOOOOOOOOOOP
+```
+
+It just works!™
+
+The basic idea is that you just put functions in objects and you call them from
+the other side of a stream and the functions will be stubbed out on the other
+end to do a round-trip back to the side that had the original function in the
+first place. The best thing is that when you pass functions to a stubbed
+function as arguments, those functions get stubbed out on the *other* side!
+
+This approach of stubbing function arguments recursively shall henceforth be
+known as the "turtles all the way down" gambit. The return values of any of your
+functions will be ignored and only enumerable properties on objects will be
+sent, json-style.
+
+It's turtles all the way down!
+
+![turtles all the way](http://substack.net/images/all_the_way_down.png)
+
+Since dnode works in node or on the browser over any stream it's easy to call
+functions defined anywhere and especially useful when paired up with
+[mux-demux](https://github.com/dominictarr/mux-demux) to multiplex an rpc stream
+for control alongside some bulk data streams.
 
 ## rpc-stream
 

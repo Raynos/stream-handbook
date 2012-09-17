@@ -452,6 +452,42 @@ the value that node `a` set finds its way to node `e` by way of nodes `b` and
 simple streaming interface, the nodes can be placed on any process or server and
 connected with any streaming transport that can handle string data.
 
+To make this example work over network sockets, just do:
+
+``` js
+var Model = require('scuttlebutt/model');
+var net = require('net');
+
+var m = new Model;
+var s = m.createStream();
+
+s.pipe(net.connect(8888, 'hostname')).pipe(s);
+```
+
+to make a client node or do:
+
+``` js
+var Model = require('scuttlebutt/model');
+var net = require('net');
+
+var m = new Model;
+
+var server = net.createServer(function (stream) {
+    stream.pipe(m.createStream()).pipe(stream);
+});
+server.listen(8888);
+```
+
+to make a server node. Then in either example call `m.get(key)` to get values,
+`m.set(key, value)`, and `m.on('update', function (key, value, source) {})` to
+listen for updates.
+
+The terms "client" and "server" here don't affect how the state synchronization
+proceeds, just who initiates the connection. Protocols with this property are
+often called symmetric protocols. See
+[dnode](https://github.com/substack/dnode) for another example of a symmetric
+protocol.
+
 ***
 
 # http streams

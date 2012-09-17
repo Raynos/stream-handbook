@@ -375,7 +375,7 @@ until the `'connect'` event fires.
 
 ## delta-stream
 
-## scuttlebutt/model
+## [scuttlebutt](https://github.com/dominictarr/scuttlebutt)
 
 [scuttlebutt](https://github.com/dominictarr/scuttlebutt) can be used for
 peer-to-peer state synchronization with a mesh topology where nodes might only
@@ -589,7 +589,7 @@ incrementally as it arrives.
 
 # browser streams
 
-## shoe
+## [shoe](https://github.com/substack/shoe)
 
 ## domnode
 
@@ -611,7 +611,9 @@ incrementally as it arrives.
 
 # rpc streams
 
-## dnode
+## [dnode](https://github.com/substack/dnode)
+
+
 
 ## rpc-stream
 

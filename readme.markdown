@@ -310,7 +310,38 @@ function will be called.
 
 ## pipe
 
-`.pipe()` is the only member function of the built-in `Stream` prototype.
+`.pipe()` is the glue that shuffles data from readable streams into writable
+streams and handles backpressure. The pipe api is just:
+
+```
+src.pipe(dst)
+```
+
+for a readable stream `src` and a writable stream `dst`. `.pipe()` returns the
+`dst` so if `dst` is also a readable stream, you can chain `.pipe()` calls
+together like:
+
+``` js
+a.pipe(b).pipe(c).pipe(d)
+```
+
+which resembles what you might do in the shell with the `|` operator:
+
+```
+a | b | c | d
+```
+
+The `a.pipe(b).pipe(c).pipe(d)` usage is the same as:
+
+```
+a.pipe(b);
+b.pipe(c);
+c.pipe(d);
+```
+
+The stream implementation in core is just an event emitter with a pipe function.
+`pipe()` is pretty short. You should read
+[the source code](https://github.com/joyent/node/blob/master/lib/stream.js).
 
 `.pipe(target)` returns the destination stream, `target`.
 This means you can chain `.pipe()` calls together like in the shell with `|`.
@@ -328,7 +359,14 @@ produce output.
 
 Duplex streams are readable/writable and both ends of the stream engage
 in a two-way interaction, sending back and forth messages like a telephone. An
-rpc exchange is a good example of a duplex stream.
+rpc exchange is a good example of a duplex stream. Any time you see something
+like:
+
+``` js
+a.pipe(b).pipe(a)
+```
+
+you're probably dealing with a duplex stream.
 
 ## read more
 

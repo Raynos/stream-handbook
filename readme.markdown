@@ -229,16 +229,22 @@ piping to your intended destination.
 
 Writable streams
 
-## duplex
-
-Duplex streams are just streams that are both readable and writable.
-
 ## pipe
 
 `.pipe()` is the only member function of the built-in `Stream` prototype.
 
 `.pipe(target)` returns the destination stream, `target`.
 This means you can chain `.pipe()` calls together like in the shell with `|`.
+
+## through
+
+Through streams are simple readable/writable filters that transform input and
+produce output.
+
+## duplex
+
+Duplex streams are readable/writable and both ends of the stream engage
+in a two-way interaction, sending back and forth messages like a telephone.
 
 ### pause / resume / drain
 

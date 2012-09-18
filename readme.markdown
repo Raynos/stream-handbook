@@ -227,7 +227,86 @@ piping to your intended destination.
 
 ## writable
 
-Writable streams
+Writable streams are streams that can accept input. To create a writable stream,
+set the `writable` attribute to `true` and define `write()`, `end()`, and
+`destroy()`.
+
+This writable stream will count all the bytes from an input stream and print the
+result on a clean `end()`. If the stream is destroyed it will do nothing.
+
+``` js
+var Stream = require('stream');
+var s = new Stream;
+s.writable = true;
+
+var bytes = 0;
+
+s.write = function (buf) {
+    bytes += buf.length;
+};
+
+s.end = function (buf) {
+    if (arguments.length) s.write(buf);
+    
+    s.writable = false;
+    console.log(bytes + ' bytes written');
+};
+
+s.destroy = function () {
+    s.writable = false;
+};
+```
+
+If we pipe a file to this writable stream:
+
+``` js
+var fs = require('fs');
+fs.createReadStream('/etc/passwd').pipe(s);
+```
+
+```
+$ node writable.js
+2447 bytes written
+```
+
+One thing to watch out for is the convention in node to treat `end(buf)` as a
+`write(buf)` then an `end()`. If you skip this it could lead to confusion
+because people expect end to behave the way it does in core.
+
+## backpressure
+
+Backpressure is the mechanism that streams use to make sure that readable
+streams don't emit data faster than writable streams can consume data.
+
+Note: the API for handling backpressure is changing substantially in future
+versions of node (> 0.8). `pause()`, `resume()`, and `emit('drain')` are
+scheduled for demolition. The notice has been on display in the local planning
+office for months.
+
+In order to do backpressure correctly readable streams should
+implement `pause()` and `resume()`. Writable streams return `false` in
+`.write()` when they want the readable streams piped into them to slow down and
+emit `'drain'` when they're ready for more data again.
+
+### writable stream backpressure
+
+When a writable stream wants a readable stream to slow down it should return
+`false` in its `.write()` function. This causes the `pause()` to be called on
+each readable stream source.
+
+When the writable stream is ready to start receiving data again, it should emit
+the `'drain'` event. Emitting `'drain'` causes the `resume()` function to be
+called on each readable stream source.
+
+### readable stream backpressure
+
+When `pause()` is called on a readable stream, it means that a downstream
+writable stream wants the upstream to slow down. The readable stream that
+`pause()` was called on should stop emitting data but that isn't always
+possible.
+
+When the downstream is ready for more data, the readable stream's `resume()`
+function will be called.
 
 ## pipe
 
@@ -236,23 +315,20 @@ Writable streams
 `.pipe(target)` returns the destination stream, `target`.
 This means you can chain `.pipe()` calls together like in the shell with `|`.
 
-## through
+## terms
+
+These terms are useful for talking about streams.
+
+### through
 
 Through streams are simple readable/writable filters that transform input and
 produce output.
 
-## duplex
+### duplex
 
 Duplex streams are readable/writable and both ends of the stream engage
-in a two-way interaction, sending back and forth messages like a telephone.
-
-### pause / resume / drain
-
-## backpressure
-
-## destroy
-
-## stream-spec
+in a two-way interaction, sending back and forth messages like a telephone. An
+rpc exchange is a good example of a duplex stream.
 
 ## read more
 

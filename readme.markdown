@@ -785,12 +785,16 @@ $ node client.js
 beep => BOOP
 ```
 
-The client sent `'beep`' to the server's `transform()` function and the server
+The client sent `'beep'` to the server's `transform()` function and the server
 called the client's callback with the result, neat!
 
-The craziness begins when you start to pass function arguments to stubbed
-callbacks. Here's an updated version of the previous server with a multi-stage
-callback passing dance:
+The streaming interface that dnode provides here is a duplex stream since both
+the client and server are piped to each other (`c.pipe(d).pipe(c)`) with
+requests and responses coming from both sides.
+
+The craziness of dnode begins when you start to pass function arguments to
+stubbed callbacks. Here's an updated version of the previous server with a
+multi-stage callback passing dance:
 
 ``` js
 var dnode = require('dnode');

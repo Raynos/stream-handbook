@@ -646,7 +646,7 @@ count = 188
 count = 189
 ```
 
-Occasionally one some of the nodes we might see a sequence with repeated values like:
+Occasionally on some of the nodes we might see a sequence with repeated values like:
 
 ```
 count = 147

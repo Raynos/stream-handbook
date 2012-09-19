@@ -343,9 +343,6 @@ The stream implementation in core is just an event emitter with a pipe function.
 `pipe()` is pretty short. You should read
 [the source code](https://github.com/joyent/node/blob/master/lib/stream.js).
 
-`.pipe(target)` returns the destination stream, `target`.
-This means you can chain `.pipe()` calls together like in the shell with `|`.
-
 ## terms
 
 These terms are useful for talking about streams.

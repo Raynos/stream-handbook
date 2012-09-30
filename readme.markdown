@@ -496,7 +496,7 @@ until the `'connect'` event fires.
 
 # state streams
 
-## cdrt
+## [crdt](https://github.com/dominictarr/crdt)
 
 ## [delta-stream](https://github.com/Raynos/delta-stream)
 

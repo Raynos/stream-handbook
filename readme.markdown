@@ -1008,4 +1008,4 @@ drawn by me, the primary author of this document.
 
 Here's what it looks like:
 
-[duplex stream shirt](http://teespring.com/uploads/13422/shirtFront.jpg?v=2012-11-01%2013:19:21)
+![duplex stream shirt](http://teespring.com/uploads/13422/shirtFront.jpg?v=2012-11-01%2013:19:21)

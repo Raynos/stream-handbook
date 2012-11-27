@@ -1011,13 +1011,3 @@ create separate channels for each different kind of stream that you need.
 As the requirements of your system evolve over time, you can swap out each of
 these streaming pieces as necessary without as many of the all-or-nothing risks
 that more opinionated framework approaches necessarily entail.
-
-# merch
-
-For a limited time you can
-[purchase a duplex stream t-shirt](http://teespring.com/pipe)
-drawn by me, the primary author of this document.
-
-Here's what it looks like:
-
-![duplex stream shirt](http://teespring.com/uploads/13422/shirtFront.jpg?v=2012-11-01%2013:19:21)

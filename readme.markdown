@@ -669,6 +669,8 @@ connection. Protocols with this property are often called symmetric protocols.
 See [dnode](https://github.com/substack/dnode) for another example of a
 symmetric protocol.
 
+## [append-only](http://github.com/Raynos/append-only)
+
 ***
 
 # http streams
@@ -878,6 +880,16 @@ for control alongside some bulk data streams.
 ***
 
 # power combos
+
+## distributed partition-tolerant chat
+
+The [append-only](http://github.com/Raynos/append-only) module can give us a
+convenient append-only array on top of
+[scuttlebutt](https://github.com/dominictarr/scuttlebutt)
+which makes it really easy to write an eventually-consistent, distributed chat
+that can replicate with other nodes and survive network partitions.
+
+TODO: the rest
 
 ## roll your own socket.io
 

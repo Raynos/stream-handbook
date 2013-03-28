@@ -471,8 +471,8 @@ concat-stream will buffer up stream contents into a single buffer.
 `body` when the stream has ended and an `err` if there was an error.
 
 For example, in this program, the concat callback fires with the body string
-`"beep boop"` once `cs.end()` fires. The program takes the body and upper-cases
-it, printing `BEEP BOOP.`.
+`"beep boop"` once `cs.end()` is called.
+The program takes the body and upper-cases it, printing `BEEP BOOP.`
 
 ``` js
 var concat = require('concat-stream');
@@ -484,6 +484,7 @@ cs.write('beep ');
 cs.write('boop.');
 cs.end();
 ```
+
 ```
 $ node concat.js
 BEEP BOOP.

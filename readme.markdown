@@ -467,7 +467,7 @@ until the `'connect'` event fires.
 ## [concat-stream](https://github.com/maxogden/node-concat-stream)
 
 concat-stream will buffer up stream contents into a single buffer.
-`concat(cb)` just takes a single callback cb(err, body)` with the buffered
+`concat(cb)` just takes a single callback `cb(err, body)` with the buffered
 `body` when the stream has ended and an `err` if there was an error.
 
 For example, in this program, the concat callback fires with the body string

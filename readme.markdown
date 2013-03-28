@@ -465,6 +465,51 @@ until the `'connect'` event fires.
 
 ## [concat-stream](https://github.com/maxogden/node-concat-stream)
 
+concat-stream will buffer up stream contents into a single buffer.
+`concat(cb)` just takes a single callback cb(err, body)` with the buffered
+`body` when the stream has ended and an `err` if there was an error.
+
+For example, in this program, the concat callback fires with the body string
+`"beep boop"` once `cs.end()` fires. The program takes the body and upper-cases
+it, printing `BEEP BOOP.`.
+
+``` js
+var concat = require('concat-stream');
+
+var cs = concat(function (err, body) {
+    console.log(body.toUpperCase());
+});
+cs.write('beep ');
+cs.write('boop.');
+cs.end();
+```
+```
+$ node concat.js
+BEEP BOOP.
+``
+
+Here's an example usage of concat-stream that will parse incoming url-encoded
+form data and reply with a stringified JSON version of the form parameters:
+
+``` js
+var http = require('http');
+var qs = require('qs');
+var concat = require('concat-stream');
+
+var server = http.createServer(function (req, res) {
+    req.pipe(concat(function (err, body) {
+        var params = qs.parse(body);
+        res.end(JSON.stringify(params) + '\n');
+    }));
+});
+server.listen(5005);
+```
+
+```
+$ curl -X POST -d 'beep=boop&dinosaur=trex' http://localhost:5005
+{"beep":"boop","dinosaur":"trex"}
+```
+
 ## [duplex](https://github.com/dominictarr/duplex)
 
 ## [duplexer](https://github.com/Raynos/duplexer)

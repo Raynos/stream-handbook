@@ -494,7 +494,7 @@ form data and reply with a stringified JSON version of the form parameters:
 
 ``` js
 var http = require('http');
-var qs = require('qs');
+var qs = require('querystring');
 var concat = require('concat-stream');
 
 var server = http.createServer(function (req, res) {

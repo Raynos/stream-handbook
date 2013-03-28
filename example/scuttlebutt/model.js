@@ -24,3 +24,7 @@ em.on('update', function (key, value, source) {
 });
 
 am.set('x', 555);
+
+setTimeout(function () {
+    console.log('em.x=' + em.get('x'));
+}, 100);

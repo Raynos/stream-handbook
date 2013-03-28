@@ -488,7 +488,7 @@ cs.end();
 ```
 $ node concat.js
 BEEP BOOP.
-``
+```
 
 Here's an example usage of concat-stream that will parse incoming url-encoded
 form data and reply with a stringified JSON version of the form parameters:

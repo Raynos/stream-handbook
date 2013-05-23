@@ -105,36 +105,20 @@ Using `.pipe()` has other benefits too, like handling backpressure automatically
 so that node won't buffer chunks into memory needlessly when the remote client
 is on a really slow or high-latency connection.
 
-But this example, while much better than the first one, is still rather verbose.
-The biggest benefit of streams is their versatility. We can
-[use a module](https://npmjs.org/) that operates on streams to make that example
-even simpler:
-
-``` js
-var http = require('http');
-var filed = require('filed');
-
-var server = http.createServer(function (req, res) {
-    filed(__dirname + '/data.txt').pipe(res);
-});
-server.listen(8000);
-```
-
-With the [filed module](http://github.com/mikeal/filed) we get mime types, etag
-caching, and error handling for free in addition to a nice streaming API.
-
 Want compression? There are streaming modules for that too!
 
 ``` js
 var http = require('http');
-var filed = require('filed');
 var oppressor = require('oppressor');
 
 var server = http.createServer(function (req, res) {
-    filed(__dirname + '/data.txt')
-        .pipe(oppressor(req))
-        .pipe(res)
-    ;
+    var stream = fs.createReadStream(__dirname + '/data.txt');
+    stream.on('error', function (err) {
+        res.statusCode = 500;
+        res.end(String(err));
+    });
+    
+    stream.pipe(oppressor(req)).pipe(res);
 });
 server.listen(8000);
 ```
@@ -723,8 +707,6 @@ symmetric protocol.
 # http streams
 
 ## [request](https://github.com/mikeal/request)
-
-## [filed](https://github.com/mikeal/filed)
 
 ## [oppressor](https://github.com/substack/oppressor)
 

@@ -1048,9 +1048,6 @@ that more opinionated framework approaches necessarily entail.
 
 ## html streams for the browser and the server
 
-NOTE: This example only works on 0.8 and below. The streaming changes in 0.10
-broke something.
-
 We can use some streaming modules to reuse the same html rendering logic for the
 client and the server! This approach is indexable, SEO-friendly, and gives us
 realtime updates.

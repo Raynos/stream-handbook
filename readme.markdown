@@ -451,8 +451,8 @@ until the `'connect'` event fires.
 ## [concat-stream](https://github.com/maxogden/node-concat-stream)
 
 concat-stream will buffer up stream contents into a single buffer.
-`concat(cb)` just takes a single callback `cb(err, body)` with the buffered
-`body` when the stream has ended and an `err` if there was an error.
+`concat(cb)` just takes a single callback `cb(body)` with the buffered
+`body` when the stream has finished.
 
 For example, in this program, the concat callback fires with the body string
 `"beep boop"` once `cs.end()` is called.
@@ -461,7 +461,7 @@ The program takes the body and upper-cases it, printing `BEEP BOOP.`
 ``` js
 var concat = require('concat-stream');
 
-var cs = concat(function (err, body) {
+var cs = concat(function (body) {
     console.log(body.toUpperCase());
 });
 cs.write('beep ');
@@ -483,7 +483,7 @@ var qs = require('querystring');
 var concat = require('concat-stream');
 
 var server = http.createServer(function (req, res) {
-    req.pipe(concat(function (err, body) {
+    req.pipe(concat(function (body) {
         var params = qs.parse(body);
         res.end(JSON.stringify(params) + '\n');
     }));

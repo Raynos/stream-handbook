@@ -60,11 +60,7 @@ var fs = require('fs');
 
 var server = http.createServer(function (req, res) {
     fs.readFile(__dirname + '/data.txt', function (err, data) {
-        if (err) {
-            res.statusCode = 500;
-            res.end(String(err));
-        }
-        else res.end(data);
+        res.end(data);
     });
 });
 server.listen(8000);
@@ -73,9 +69,11 @@ server.listen(8000);
 This code works but it's bulky and buffers up the entire `data.txt` file into
 memory for every request before writing the result back to clients. If
 `data.txt` is very large, your program could start eating a lot of memory as it
-serves lots of users concurrently. The latency will also be high as users will
-need to wait for the entire file to be read before they start receiving the
-contents.
+serves lots of users concurrently, particularly for users on slow connections.
+
+The user experience is poor too because users will need to wait for the whole
+file to be buffered into memory on your server before they can start receiving
+any contents.
 
 Luckily both of the `(req, res)` arguments are streams, which means we can write
 this in a much better way using `fs.createReadStream()` instead of
@@ -87,10 +85,6 @@ var fs = require('fs');
 
 var server = http.createServer(function (req, res) {
     var stream = fs.createReadStream(__dirname + '/data.txt');
-    stream.on('error', function (err) {
-        res.statusCode = 500;
-        res.end(String(err));
-    });
     stream.pipe(res);
 });
 server.listen(8000);
@@ -113,11 +107,6 @@ var oppressor = require('oppressor');
 
 var server = http.createServer(function (req, res) {
     var stream = fs.createReadStream(__dirname + '/data.txt');
-    stream.on('error', function (err) {
-        res.statusCode = 500;
-        res.end(String(err));
-    });
-    
     stream.pipe(oppressor(req)).pipe(res);
 });
 server.listen(8000);

@@ -279,6 +279,10 @@ These extra complications are necessary when interfacing with the external
 operating system pipes but are automatic when we interface directly with node
 streams the whole time.
 
+If you want to create a readable stream that pushes arbitrary values instead of
+just strings and objects, make sure to create your readable stream with
+`Readable({ objectMode: true })`.
+
 ### consuming a readable stream
 
 Most of the time it's much easier to just pipe a readable stream into another
@@ -397,7 +401,45 @@ your own line-parsing logic.
 
 ## writable streams
 
-todo
+A writable stream is a stream you can `.pipe()` to.
+
+### creating a writable stream
+
+Just define a `._write(chunk, enc, next)` function and then you can pipe a a
+readable stream in:
+
+``` js
+var Writable = require('stream').Writable;
+var ws = Writable();
+ws._write = function (chunk, enc, next) {
+    console.dir(chunk);
+    next();
+};
+
+process.stdin.pipe(ws);
+```
+
+```
+$ (echo beep; sleep 1; echo boop) | node write0.js 
+<Buffer 62 65 65 70 0a>
+<Buffer 62 6f 6f 70 0a>
+```
+
+The first argument, `chunk` is the data that is written by the producer.
+
+The second argument `enc` is a string with the string encoding, but only when
+`opts.decodeString` is `false` and you've been written a string.
+
+The third argument, `next(err)` is the callback that tells the consumer that
+they can write more data. You can optionally pass an error object `err`, which
+emits an `'error'` event on the stream instance.
+
+If the readable stream you're piping from writes strings, they will be converted
+into `Buffer`s unless you create your writable stream with
+`Writable({ decodeStrings: false })`.
+
+If the readable stream you're piping from writes objects, create your writable
+stream with `Writable({ objectMode: true })`.
 
 ## classic streams
 

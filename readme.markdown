@@ -124,31 +124,44 @@ Streams make programming in node simple, elegant, and composable.
 
 # basics
 
-Streams are just
-[EventEmitters](http://nodejs.org/docs/latest/api/events.html#events_class_events_eventemitter)
-that have a
-[.pipe()](http://nodejs.org/docs/latest/api/stream.html#stream_stream_pipe_destination_options)
-function and expected to act in a certain way depending if the stream is
-readable, writable, or both (duplex).
+There are 4 kinds of streams: readable, writable, transform, and duplex.
 
-To create a new stream, just do:
+There is also a compatibility mode for "classic streams" which were present in
+node 0.4 through 0.8.
 
-``` js
-var Stream = require('stream');
-var s = new Stream;
-```
-
-This new stream doesn't yet do anything because it is neither readable nor
-writable.
+All the kinds of streams use `.pipe()` to shuffle data around.
 
 ## readable
 
-To make that stream `s` into a readable stream, all we need to do is set the
-`readable` property to true:
+Let's make a readable stream!
 
 ``` js
-s.readable = true
+var Readable = require('stream').Readable;
+
+var rs = Readable();
+rs.push('beep ');
+rs.push('boop\n');
+rs.push(null);
+
+rs.pipe(process.stdout);
 ```
+
+```
+$ node read.js
+beep boop
+```
+
+`rs.push(null)` tells the consumer that `rs` is done outputting data.
+
+Note here that we pushed content to the readable stream `rs` before piping to
+`process.stdout`, but the complete message was still written.
+
+This is because when you `.push()` to a readable stream, the chunks you push are
+buffered until a consumer is ready to read them.
+
+
+
+# --------
 
 Readable streams emit many `'data'` events and a single `'end'` event.
 Your stream shouldn't emit any more `'data'` events after it emits the `'end'`

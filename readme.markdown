@@ -163,6 +163,15 @@ except in node instead of the shell!
 
 ## readable streams
 
+Readable streams produce data that can be fed into a writable, transform, or
+duplex stream by calling `.pipe()`:
+
+``` js
+readableStream.pipe(dst)
+```
+
+### creating a readable stream
+
 Let's make a readable stream!
 
 ``` js
@@ -220,6 +229,9 @@ The `_read` function will also get a provisional `size` parameter as its first
 argument that specifies how many bytes the consumer wants to read, but your
 readable stream can ignore the `size` if it wants.
 
+Note that you can also use `util.inherits()` to subclass a Readable stream, but
+that approach doesn't lend itself very well to comprehensible examples.
+
 To show that our `_read` function is only being called when the consumer
 requests, we can modify our readable stream code slightly to add a delay:
 
@@ -254,8 +266,8 @@ abcde
 _read() called 5 times
 ```
 
-The delay is necessary because the operating system requires some time to send
-us the relevant signals to close the pipe.
+The setTimeout delay is necessary because the operating system requires some
+time to send us the relevant signals to close the pipe.
 
 The `process.stdout.on('error', fn)` handler is also necessary because the
 operating system will send a SIGPIPE to our process when `head` is no longer
@@ -266,7 +278,89 @@ These extra complications are necessary when interfacing with the external
 operating system pipes but are automatic when we interface directly with node
 streams the whole time.
 
+### consuming a readable stream
+
+Most of the time it's much easier to just pipe a readable stream into another
+kind of stream or a stream created with a module like
+[through](https://npmjs.org/package/through)
+or [concat-stream](https://npmjs.org/package/concat-stream),
+but occasionally it might be useful to consume a readable stream directly.
+
+``` js
+process.stdin.on('readable', function () {
+    var buf = process.stdin.read();
+    console.dir(buf);
+});
+```
+
+```
+$ (echo abc; sleep 1; echo def; sleep 1; echo ghi) | node consume0.js 
+<Buffer 61 62 63 0a>
+<Buffer 64 65 66 0a>
+<Buffer 67 68 69 0a>
+null
+```
+
+When data is available, the `'readable'` event fires and you can call `.read()`
+to fetch some data from the buffer.
+
+When the stream is finished, `.read()` returns `null` because there are no more
+bytes to fetch.
+
+You can also tell `.read(n)` to return `n` bytes of data. Reading a number of
+bytes is merely advisory and does not work for object streams, but all of the
+core streams support it.
+
+Here's an example of using `.read(n)` to buffer stdin into 3-byte chunks:
+
+``` js
+process.stdin.on('readable', function () {
+    var buf = process.stdin.read(3);
+    console.dir(buf);
+});
+```
+
+Running this example gives us incomplete data!
+
+```
+$ (echo abc; sleep 1; echo def; sleep 1; echo ghi) | node consume1.js 
+<Buffer 61 62 63>
+<Buffer 0a 64 65>
+<Buffer 66 0a 67>
+```
+
+This is because there is extra data left in internal buffers and we need to give
+node a "kick" to tell it that we are interested in more data past the 3 bytes
+that we've already read. A simple `.read(0)` will do this:
+
+``` js
+process.stdin.on('readable', function () {
+    var buf = process.stdin.read(3);
+    console.dir(buf);
+    process.stdin.read(0);
+});
+```
+
+Now our code works as expected in 3-byte chunks!
+
+``` js
+$ (echo abc; sleep 1; echo def; sleep 1; echo ghi) | node consume2.js 
+<Buffer 61 62 63>
+<Buffer 0a 64 65>
+<Buffer 66 0a 67>
+<Buffer 68 69 0a>
+```
+
+You can also use `.unshift()` to put back data if you over-zealously read too
+much. `.unshift()` is super handy for making chunking up input by lines:
+
+``` js
+
+```
+
 ## writable streams
+
+
 
 ## classic streams
 

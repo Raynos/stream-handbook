@@ -168,11 +168,7 @@ var rs = Readable();
 var c = 97;
 rs._read = function () {
     rs.push(String.fromCharCode(c++));
-    
-    if (c > 'z'.charCodeAt(0)) {
-        rs.push('\n');
-        rs.push(null);
-    }
+    if (c > 'z'.charCodeAt(0)) rs.push(null);
 };
 
 rs.pipe(process.stdout);
@@ -186,47 +182,57 @@ abcdefghijklmnopqrstuvwxyz
 Here we push the letters `'a'` through `'z'`, inclusive, but only when the
 consumer is ready to read them.
 
-# --------
+The `_read` function will also get a provisional `size` parameter as its first
+argument that specifies how many bytes the consumer wants to read, but your
+readable stream can ignore the `size` if it wants.
 
-Readable streams emit many `'data'` events and a single `'end'` event.
-Your stream shouldn't emit any more `'data'` events after it emits the `'end'`
-event.
+To show that our `_read` function is only being called when the consumer
+requests, we can modify our readable stream code slightly to add a delay:
 
-This simple readable stream emits one `'data'` event per second for 5 seconds,
-then it ends. The data is piped to stdout so we can watch the results as they
-happen.
+```
+var Readable = require('stream').Readable;
+var rs = Readable();
 
-``` js
-var Stream = require('stream');
+var c = 97 - 1;
 
-function createStream () {
-    var s = new Stream;
-    s.readable = true
-
-    var times = 0;
-    var iv = setInterval(function () {
-        s.emit('data', times + '\n');
-        if (++times === 5) {
-            s.emit('end');
-            clearInterval(iv);
-        }
-    }, 1000);
+rs._read = function () {
+    if (c >= 'z'.charCodeAt(0)) return rs.push(null);
     
-    return s;
-}
+    setTimeout(function () {
+        rs.push(String.fromCharCode(++c));
+    }, 100);
+};
 
-createStream().pipe(process.stdout);
+rs.pipe(process.stdout);
+
+process.on('exit', function () {
+    console.error('\n_read() called ' + (c - 97) + ' times');
+});
+process.stdout.on('error', process.exit);
 ```
 
+Running this program we can see that `_read()` is only called 5 times when we
+only request 5 bytes of output:
+
 ```
-substack : ~ $ node rs.js
-0
-1
-2
-3
-4
-substack : ~ $ 
+$ node read2.js | head -c5
+abcde
+_read() called 5 times
 ```
+
+The delay is necessary because the operating system requires some time to send
+us the relevant signals to close the pipe.
+
+The `process.stdout.on('error', fn)` handler is also necessary because the
+operating system will send a SIGPIPE to our process when `head` is no longer
+interested in our program's output, which gets emitted as an EPIPE error on
+`process.stdout`.
+
+These extra complications are necessary when interfacing with the external
+operating system pipes but are automatic when we interface directly with node
+streams the whole time.
+
+# --------
 
 In this example the `'data'` events have a string payload as the first argument.
 Buffers and strings are the most common types of data to stream but it's

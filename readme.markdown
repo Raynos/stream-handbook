@@ -124,12 +124,8 @@ Streams make programming in node simple, elegant, and composable.
 
 # basics
 
-There are 4 kinds of streams: readable, writable, transform, and duplex.
-
-There is also a compatibility mode for "classic streams" which were present in
-node 0.4 through 0.8.
-
-All the kinds of streams use `.pipe()` to shuffle data around.
+There are 5 kinds of streams: readable, writable, transform, duplex, and
+"classic".
 
 ## readable
 
@@ -138,7 +134,7 @@ Let's make a readable stream!
 ``` js
 var Readable = require('stream').Readable;
 
-var rs = Readable();
+var rs = new Readable;
 rs.push('beep ');
 rs.push('boop\n');
 rs.push(null);
@@ -147,7 +143,7 @@ rs.pipe(process.stdout);
 ```
 
 ```
-$ node read.js
+$ node read0.js
 beep boop
 ```
 
@@ -159,7 +155,36 @@ Note here that we pushed content to the readable stream `rs` before piping to
 This is because when you `.push()` to a readable stream, the chunks you push are
 buffered until a consumer is ready to read them.
 
+However, it would be even better in many circumstances if we could avoid
+buffering data altogether and only generate the data when the consumer asks for
+it.
 
+We can push chunks on-demand by defining a `._read` function:
+
+``` js
+var Readable = require('stream').Readable;
+var rs = Readable();
+
+var c = 97;
+rs._read = function () {
+    rs.push(String.fromCharCode(c++));
+    
+    if (c > 'z'.charCodeAt(0)) {
+        rs.push('\n');
+        rs.push(null);
+    }
+};
+
+rs.pipe(process.stdout);
+```
+
+```
+$ node read1.js
+abcdefghijklmnopqrstuvwxyz
+```
+
+Here we push the letters `'a'` through `'z'`, inclusive, but only when the
+consumer is ready to read them.
 
 # --------
 

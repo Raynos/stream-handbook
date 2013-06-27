@@ -103,6 +103,7 @@ Want compression? There are streaming modules for that too!
 
 ``` js
 var http = require('http');
+var fs = require('fs');
 var oppressor = require('oppressor');
 
 var server = http.createServer(function (req, res) {
@@ -943,7 +944,7 @@ incrementally as it arrives.
 
 # html streams
 
-## [hyperstream](https://github.com/substack/hypersream)
+## [hyperstream](https://github.com/substack/hyperstream)
 
 
 # audio streams

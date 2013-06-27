@@ -401,7 +401,11 @@ your own line-parsing logic.
 
 ## writable streams
 
-A writable stream is a stream you can `.pipe()` to.
+A writable stream is a stream you can `.pipe()` to but not from:
+
+``` js
+src.pipe(writableStream)
+```
 
 ### creating a writable stream
 
@@ -440,6 +444,41 @@ into `Buffer`s unless you create your writable stream with
 
 If the readable stream you're piping from writes objects, create your writable
 stream with `Writable({ objectMode: true })`.
+
+### writing to a writable stream
+
+To write to a writable stream, just call `.write(data)` with the `data` you want
+to write!
+
+``` js
+process.stdout.write('beep boop\n');
+```
+
+To tell the destination writable stream that you're done writing, just call
+`.end()`. You can also give `.end(data)` some `data` to write before ending:
+
+``` js
+var fs = require('fs');
+var ws = fs.createWriteStream('message.txt');
+
+ws.write('beep ');
+
+setTimeout(function () {
+    ws.end('boop\n');
+}, 1000);
+```
+
+```
+$ node writing1.js 
+$ cat message.txt
+beep boop
+```
+
+If you care about high water marks and buffering, `.write()` returns false when
+there is more data than the `opts.highWaterMark` option passed to `Writable()`
+in the incoming buffer.
+
+If you want to wait for the buffer to empty again, listen for a `'drain'` event.
 
 ## classic streams
 

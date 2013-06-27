@@ -351,12 +351,48 @@ $ (echo abc; sleep 1; echo def; sleep 1; echo ghi) | node consume2.js
 <Buffer 68 69 0a>
 ```
 
-You can also use `.unshift()` to put back data if you over-zealously read too
-much. `.unshift()` is super handy for making chunking up input by lines:
+You can also use `.unshift()` to put back data so that the same read logic will
+fire when `.read()` gives you more data than you wanted.
+
+Using `.unshift()` prevents us from making unnecessary buffer copies. Here we
+can build a readable parser to split on newlines:
 
 ``` js
+var offset = 0;
+
+process.stdin.on('readable', function () {
+    var buf = process.stdin.read();
+    if (!buf) return;
+    for (; offset < buf.length; offset++) {
+        if (buf[offset] === 0x0a) {
+            console.dir(buf.slice(0, offset).toString());
+            buf = buf.slice(offset + 1);
+            offset = 0;
+            process.stdin.unshift(buf);
+            return;
+        }
+    }
+    process.stdin.unshift(buf);
+});
+```
 
 ```
+$ tail -n +50000 /usr/share/dict/american-english | head -n10 | node lines.js 
+'hearties'
+'heartiest'
+'heartily'
+'heartiness'
+'heartiness\'s'
+'heartland'
+'heartland\'s'
+'heartlands'
+'heartless'
+'heartlessly'
+```
+
+However, there are modules on npm such as
+[split](https://npmjs.org/package/split) that you should use instead of rolling
+your own line-parsing logic.
 
 ## writable streams
 

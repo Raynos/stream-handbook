@@ -127,7 +127,41 @@ Streams make programming in node simple, elegant, and composable.
 There are 5 kinds of streams: readable, writable, transform, duplex, and
 "classic".
 
-## readable
+## pipe
+
+All the different types of streams use `.pipe()` to pair inputs with outputs.
+
+`.pipe()` is just a function that takes a readable source stream `src` and hooks
+the output to a destination writable stream `dst`:
+
+```
+src.pipe(dst)
+```
+
+`.pipe(dst)` returns `dst` so that you can chain together multiple `.pipe()`
+calls together:
+
+``` js
+a.pipe(b).pipe(c).pipe(d)
+```
+which is the same as:
+
+``` js
+a.pipe(b);
+b.pipe(c);
+c.pipe(d);
+```
+
+This is very much like what you might do on the command-line to pipe programs
+together:
+
+```
+a | b | c | d
+```
+
+except in node instead of the shell!
+
+## readable streams
 
 Let's make a readable stream!
 
@@ -232,145 +266,124 @@ These extra complications are necessary when interfacing with the external
 operating system pipes but are automatic when we interface directly with node
 streams the whole time.
 
-# --------
+## writable streams
 
-In this example the `'data'` events have a string payload as the first argument.
-Buffers and strings are the most common types of data to stream but it's
-sometimes useful to emit other types of objects.
+## classic streams
 
-Just make sure that the types you're emitting as data is compatible with the
-types that the writable stream you're piping into expects.
-Otherwise you can pipe into an intermediary conversion or parsing stream before
-piping to your intended destination.
+Classic streams are the old interface that first appeared in node 0.4.
+You will probably encounter this style of stream for a long time so it's good to
+know how they work.
 
-## writable
+Whenever a stream has a `"data"` listener registered, it switches into
+`"classic"` mode and behaves according to the old API.
 
-Writable streams are streams that can accept input. To create a writable stream,
-set the `writable` attribute to `true` and define `write()`, `end()`, and
-`destroy()`.
+### classic readable streams
 
-This writable stream will count all the bytes from an input stream and print the
-result on a clean `end()`. If the stream is destroyed it will do nothing.
+Classic readable streams are just event emitters that emit `"data"` events when
+they have data for their consumers and emit `"end"` events when they are done
+producing data for their consumers.
+
+`.pipe()` checks whether a classic stream is readable by checking the truthiness
+of `stream.readable`.
+
+Here is a super simple readable stream that prints `A` through `J`, inclusive:
 
 ``` js
 var Stream = require('stream');
-var s = new Stream;
-s.writable = true;
+var stream = new Stream;
+stream.readable = true;
 
-var bytes = 0;
+var c = 64;
+var iv = setInterval(function () {
+    if (++c >= 75) {
+        clearInterval(iv);
+        stream.emit('end');
+    }
+    else stream.emit('data', String.fromCharCode(c));
+}, 100);
 
-s.write = function (buf) {
-    bytes += buf.length;
-};
-
-s.end = function (buf) {
-    if (arguments.length) s.write(buf);
-    
-    s.writable = false;
-    console.log(bytes + ' bytes written');
-};
-
-s.destroy = function () {
-    s.writable = false;
-};
+stream.pipe(process.stdout);
 ```
 
-If we pipe a file to this writable stream:
+```
+$ node classic0.js
+ABCDEFGHIJ
+```
+
+To read from a classic readable stream, you register `"data"` and `"end"`
+listeners. Here's an example reading from `process.stdin` using the old readable
+stream style:
 
 ``` js
-var fs = require('fs');
-fs.createReadStream('/etc/passwd').pipe(s);
+process.stdin.on('data', function (buf) {
+    console.log(buf);
+});
+process.stdin.on('end', function () {
+    console.log('__END__');
+});
 ```
 
 ```
-$ node writable.js
-2447 bytes written
+$ (echo beep; sleep 1; echo boop) | node classic1.js 
+<Buffer 62 65 65 70 0a>
+<Buffer 62 6f 6f 70 0a>
+__END__
 ```
 
-One thing to watch out for is the convention in node to treat `end(buf)` as a
-`write(buf)` then an `end()`. If you skip this it could lead to confusion
-because people expect end to behave the way it does in core.
+Note that whenever you register a `"data"` listener, you put the stream into
+compatability mode so you lose the benefits of the new streams2 api.
 
-## backpressure
+You should pretty much never register `"data"` and `"end"` handlers yourself
+anymore. If you need to interact with legacy streams, use libraries that you can
+`.pipe()` to instead where possible.
 
-Backpressure is the mechanism that streams use to make sure that readable
-streams don't emit data faster than writable streams can consume data.
-
-Note: the API for handling backpressure is changing substantially in future
-versions of node (> 0.8). `pause()`, `resume()`, and `emit('drain')` are
-scheduled for demolition. The notice has been on display in the local planning
-office for months.
-
-In order to do backpressure correctly readable streams should
-implement `pause()` and `resume()`. Writable streams return `false` in
-`.write()` when they want the readable streams piped into them to slow down and
-emit `'drain'` when they're ready for more data again.
-
-### writable stream backpressure
-
-When a writable stream wants a readable stream to slow down it should return
-`false` in its `.write()` function. This causes the `pause()` to be called on
-each readable stream source.
-
-When the writable stream is ready to start receiving data again, it should emit
-the `'drain'` event. Emitting `'drain'` causes the `resume()` function to be
-called on each readable stream source.
-
-### readable stream backpressure
-
-When `pause()` is called on a readable stream, it means that a downstream
-writable stream wants the upstream to slow down. The readable stream that
-`pause()` was called on should stop emitting data but that isn't always
-possible.
-
-When the downstream is ready for more data, the readable stream's `resume()`
-function will be called.
-
-## pipe
-
-`.pipe()` is the glue that shuffles data from readable streams into writable
-streams and handles backpressure. The pipe api is just:
-
-```
-src.pipe(dst)
-```
-
-for a readable stream `src` and a writable stream `dst`. `.pipe()` returns the
-`dst` so if `dst` is also a readable stream, you can chain `.pipe()` calls
-together like:
+For example, you can use [through](https://npmjs.org/package/through)
+to avoid setting up explicit `"data"` and `"end"` listeners:
 
 ``` js
-a.pipe(b).pipe(c).pipe(d)
+var through = require('through');
+process.stdin.pipe(through(write, end));
+
+function write (buf) {
+    console.log(buf);
+}
+function end () {
+    console.log('__END__');
+}
 ```
 
-which resembles what you might do in the shell with the `|` operator:
-
 ```
-a | b | c | d
-```
-
-The `a.pipe(b).pipe(c).pipe(d)` usage is the same as:
-
-```
-a.pipe(b);
-b.pipe(c);
-c.pipe(d);
+$ (echo beep; sleep 1; echo boop) | node through.js 
+<Buffer 62 65 65 70 0a>
+<Buffer 62 6f 6f 70 0a>
+__END__
 ```
 
-The stream implementation in core is just an event emitter with a pipe function.
-`pipe()` is pretty short. You should read
-[the source code](https://github.com/joyent/node/blob/master/lib/stream.js).
+or use [concat-stream](https://npmjs.org/package/concat-stream) to buffer up an
+entire stream's contents:
 
-## terms
+``` js
+var concat = require('concat-stream');
+process.stdin.pipe(concat(function (body) {
+    console.log(JSON.parse(body));
+}));
+```
 
-These terms are useful for talking about streams.
+```
+$ echo '{"beep":"boop"}' | node concat.js 
+{ beep: 'boop' }
+```
 
-### through
+### classic writable streams
+
+## transform
+
+You might also hear transform streams referred to as "through streams".
 
 Through streams are simple readable/writable filters that transform input and
 produce output.
 
-### duplex
+## duplex
 
 Duplex streams are readable/writable and both ends of the stream engage
 in a two-way interaction, sending back and forth messages like a telephone. An
@@ -386,20 +399,10 @@ you're probably dealing with a duplex stream.
 ## read more
 
 * [core stream documentation](http://nodejs.org/docs/latest/api/stream.html#stream_stream)
-* [notes on the stream api](http://maxogden.com/node-streams)
-* [why streams are awesome](http://blog.dump.ly/post/19819897856/why-node-js-streams-are-awesome)
-* [notes on event-stream](http://thlorenz.com/#/blog/post/event-stream)
-
-## the future
-
-A big upgrade is planned for the stream api in node 0.9.
-The basic apis with `.pipe()` will be the same, only the internals are going to
-be different. The new api will also be backwards compatible with the existing
-api documented here for a long time.
-
-You can check the
-[readable-stream](https://github.com/isaacs/readable-stream) repo to see what
-these future streams will look like.
+* You can use the [readable-stream](https://npmjs.org/package/readable-stream)
+module to make your streams2 code compliant with node 0.8 and below. Just
+`require('readable-stream')` instead of `require('stream')` after you
+`npm install readable-stream`.
 
 ***
 

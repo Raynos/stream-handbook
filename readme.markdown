@@ -396,7 +396,7 @@ your own line-parsing logic.
 
 ## writable streams
 
-
+todo
 
 ## classic streams
 
@@ -504,7 +504,20 @@ $ echo '{"beep":"boop"}' | node concat.js
 { beep: 'boop' }
 ```
 
+Classic readable streams have `.pause()` and `.resume()` logic for provisionally
+pausing a stream, but this was merely advisory. If you are going to use
+`.pause()` and `.resume()` with classic readable streams, you should use
+[through](https://npmjs.org/package/through) to handle buffering instead of
+writing that yourself.
+
 ### classic writable streams
+
+Classic writable streams are very simple. Just define `.write(buf)`, `.end(buf)`
+and `.destroy()`.
+
+`.end(buf)` may or may not get a `buf`, but node people will expect `stream.end(buf)`
+to mean `stream.write(buf); stream.end()` and you shouldn't violate their
+expectations.
 
 ## transform
 

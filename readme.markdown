@@ -1,9 +1,23 @@
-# introduction
+# stream-handbook
 
 This document covers the basics of how to write [node.js](http://nodejs.org/)
 programs with [streams](http://nodejs.org/docs/latest/api/stream.html).
 
 [![cc-by-3.0](http://i.creativecommons.org/l/by/3.0/80x15.png)](http://creativecommons.org/licenses/by/3.0/)
+
+# node packaged manuscript
+
+You can install this handbook with npm. Just do:
+
+```
+npm install -g stream-handbook
+```
+
+Now you will have a `stream-handbook` command that will open this readme file in
+your `$PAGER`. Otherwise, you may continue reading this document as you are
+presently doing.
+
+# introduction
 
 ```
 "We should have some ways of connecting programs like garden hose--screw in

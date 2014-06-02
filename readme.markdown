@@ -482,6 +482,28 @@ in the incoming buffer.
 
 If you want to wait for the buffer to empty again, listen for a `'drain'` event.
 
+## transform
+
+Transform streams are
+
+You might also hear transform streams referred to as "through streams".
+
+Through streams are simple readable/writable filters that transform input and
+produce output.
+
+## duplex
+
+Duplex streams are readable/writable and both ends of the stream engage
+in a two-way interaction, sending back and forth messages like a telephone. An
+rpc exchange is a good example of a duplex stream. Any time you see something
+like:
+
+``` js
+a.pipe(b).pipe(a)
+```
+
+you're probably dealing with a duplex stream.
+
 ## classic streams
 
 Classic streams are the old interface that first appeared in node 0.4.
@@ -602,26 +624,6 @@ and `.destroy()`.
 `.end(buf)` may or may not get a `buf`, but node people will expect `stream.end(buf)`
 to mean `stream.write(buf); stream.end()` and you shouldn't violate their
 expectations.
-
-## transform
-
-You might also hear transform streams referred to as "through streams".
-
-Through streams are simple readable/writable filters that transform input and
-produce output.
-
-## duplex
-
-Duplex streams are readable/writable and both ends of the stream engage
-in a two-way interaction, sending back and forth messages like a telephone. An
-rpc exchange is a good example of a duplex stream. Any time you see something
-like:
-
-``` js
-a.pipe(b).pipe(a)
-```
-
-you're probably dealing with a duplex stream.
 
 ## read more
 
